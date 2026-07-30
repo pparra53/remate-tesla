@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Remate Tesla · Panel de campaña</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root{--blue:#e11d48;--blue-dark:#9f1239;--ink:#0f172a;--muted:#64748b;--bg:#fff5f7;--card:#fff;--line:#f2dae1;
+    --util:#16a34a;--auto:#64748b;--no:#dc2626;--rev:#f59e0b;}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink);padding:22px;line-height:1.45}
+  .wrap{max-width:1060px;margin:0 auto}
+  h1{font-size:23px;letter-spacing:-.5px}
+  .sub{color:var(--muted);font-size:13.5px;margin-top:3px}
+  .pill{display:inline-block;background:#ffe4ea;color:var(--blue-dark);font-size:11.5px;font-weight:600;padding:3px 10px;border-radius:999px;margin:9px 6px 0 0}
+  .tabs{display:flex;flex-wrap:wrap;gap:6px;margin:18px 0;border-bottom:2px solid var(--line)}
+  .tab{border:none;background:none;padding:9px 13px;font-size:13px;font-weight:600;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-2px;white-space:nowrap}
+  .tab:hover{color:var(--ink)}
+  .tab.active{color:var(--blue-dark);border-bottom-color:var(--blue)}
+  .tab .b{background:#ffe4ea;border-radius:999px;font-size:10.5px;padding:1px 7px;margin-left:5px;color:var(--blue-dark)}
+  .view{display:none} .view.active{display:block}
+  .kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:13px;margin:6px 0 18px}
+  @media(max-width:820px){.kpis{grid-template-columns:repeat(2,1fr)}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:15px;box-shadow:0 1px 2px rgba(15,23,42,.04)}
+  .kpi .label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+  .kpi .val{font-size:25px;font-weight:700;margin-top:5px}
+  .kpi .val.accent{color:var(--blue-dark)}
+  .kpi .foot{font-size:11px;color:var(--muted);margin-top:2px}
+  .two{display:grid;grid-template-columns:1.15fr 1fr;gap:15px;margin-bottom:18px}
+  @media(max-width:820px){.two{grid-template-columns:1fr}}
+  h2{font-size:14px;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+  h2 .dot{width:8px;height:8px;border-radius:50%;background:var(--blue)}
+  .chart-box{position:relative;height:260px}
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  th,td{text-align:right;padding:9px 8px;border-bottom:1px solid var(--line)}
+  th:first-child,td:first-child{text-align:left}
+  th{font-size:10.5px;text-transform:uppercase;letter-spacing:.3px;color:var(--muted)}
+  td.nm{font-weight:600}
+  .tag{font-size:11px;font-weight:700;padding:2px 8px;border-radius:6px;background:#f2dae1;color:var(--muted)}
+  .msg-box{font-size:13px;color:#334155;background:#fff5f7;border-left:3px solid var(--blue);padding:11px 14px;white-space:pre-line;border-radius:8px;margin:4px 0 16px}
+  .openbtn{display:inline-block;background:var(--blue);color:#fff;text-decoration:none;font-size:12px;font-weight:600;padding:7px 13px;border-radius:8px}
+  .openbtn:hover{background:var(--blue-dark)}
+  .filters{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0}
+  .fb{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:7px 13px;font-size:12.5px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;color:var(--ink)}
+  .fb .ct{background:#f2dae1;border-radius:999px;padding:1px 7px;font-size:10.5px;color:var(--muted)}
+  .fb.active{color:#fff;border-color:transparent}.fb.active .ct{background:rgba(255,255,255,.25);color:#fff}
+  .fb[data-c="todas"].active{background:var(--blue-dark)}.fb[data-c="util"].active{background:var(--util)}
+  .fb[data-c="auto"].active{background:var(--auto)}.fb[data-c="no"].active{background:var(--no)}.fb[data-c="revisar"].active{background:var(--rev)}
+  .item{background:var(--card);border:1px solid var(--line);border-left-width:4px;border-radius:11px;padding:12px 14px;margin-bottom:9px}
+  .item.util{border-left-color:var(--util)}.item.auto{border-left-color:var(--auto)}.item.no{border-left-color:var(--no)}.item.revisar{border-left-color:var(--rev)}
+  .row1{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+  .r-nm{font-weight:700;font-size:13.5px}.r-ph{color:var(--muted);font-size:12px}
+  .badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:6px;text-transform:uppercase}
+  .badge.util{background:#dcfce7;color:#15803d}.badge.auto{background:#eef2f7;color:#475569}
+  .badge.no{background:#fee2e2;color:#b91c1c}.badge.revisar{background:#fef3c7;color:#b45309}
+  .conf{font-size:10px;color:var(--muted);font-style:italic}
+  .reply{background:#fff5f7;border-left:3px solid var(--blue);padding:6px 9px;border-radius:6px;margin-top:7px;font-size:12.5px}
+  .note{font-size:11.5px;color:var(--muted);margin-top:5px}
+  .lnk{display:inline-block;margin-top:7px;background:var(--blue);color:#fff;text-decoration:none;font-size:11px;font-weight:600;padding:5px 11px;border-radius:7px}
+  .lnk:hover{background:var(--blue-dark)}
+  .scroll{max-height:560px;overflow:auto;margin-top:4px}
+  .hint{font-size:11.5px;color:var(--muted);margin:8px 0 12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🔋 Remate Tesla — Panel de campaña</h1>
+  <div class="sub">WindMar Home · Botmaker · WhatsApp · 1 notificación</div>
+  <div><span class="pill">Enviada 30 jul 2026</span><span class="pill">Powerwall usadas desde $5,000</span></div>
+
+  <div class="tabs" id="tabs"></div>
+  <div class="view active" id="v-metricas">
+    <div class="kpis" id="kpis"></div>
+    <div class="two">
+      <div class="card"><h2><span class="dot"></span>Embudo de la campaña</h2><div class="chart-box"><canvas id="funnel"></canvas></div></div>
+      <div class="card"><h2><span class="dot"></span>Clasificación de respuestas</h2><div class="chart-box"><canvas id="rate"></canvas></div></div>
+    </div>
+    <div class="card"><h2><span class="dot"></span>Detalle por notificación</h2>
+      <div style="overflow-x:auto"><table id="tbl"><thead><tr><th>Notificación</th><th>Oferta</th><th>Env.</th><th>Entreg.</th><th>Leídas</th><th>Resp.</th><th>% Resp.*</th></tr></thead><tbody></tbody></table></div>
+      <div style="font-size:11px;color:var(--muted);margin-top:8px">* % Resp. = respondieron ÷ entregadas (resumen fresco).</div>
+    </div>
+    <div class="card" style="margin-top:18px"><h2><span class="dot"></span>Mensaje de la notificación</h2><div id="msgsummary"></div></div>
+  </div>
+  <div id="notifViews"></div>
+</div>
+
+<script>const DB={"notifs": [{"id": "s0484", "name": "S0484-Remate Tesla", "oferta": "Remate Tesla Powerwall", "date": "30 jul 10:02", "sent": 818, "delivered": 762, "read": 429, "answered": 13, "fresh": 13, "msg": "🔋 ¿Y si nunca más te quedaras sin luz… por una fracción del precio?\nLiberamos inventario de Tesla Powerwall (uso interno):\n✅ USADAS: $5,000\n✅ DAÑOS COSMÉTICOS: $8,000 · 🔧 instalación incluida\n⚠️ Solo para AÑADIR baterías a un Powerwall 2 / Powerwall+ ya instalado (no instalaciones nuevas).\n💵 Solo efectivo. Unidades contadas.", "resp": [{"name": "Contacto 1", "phone": "•••-•••-1410", "url": "#", "date": "2026-07-30 12:02", "cat": "auto", "conf": true, "reply": "(respuesta automática de una cuenta de negocio)", "note": "Respuesta automática — no requiere atención."}, {"name": "Contacto 2", "phone": "•••-•••-1726", "url": "#", "date": "2026-07-30 12:03", "cat": "auto", "conf": true, "reply": "(respuesta automática de una cuenta de negocio)", "note": "Respuesta automática — no requiere atención."}, {"name": "Contacto 3", "phone": "•••-•••-5076", "url": "#", "date": "2026-07-30 12:03", "cat": "auto", "conf": true, "reply": "(respuesta automática de una cuenta de negocio)", "note": "Respuesta automática — no requiere atención."}, {"name": "Contacto 4", "phone": "•••-•••-1371", "url": "#", "date": "2026-07-30 12:04", "cat": "auto", "conf": true, "reply": "(respuesta automática de una cuenta de negocio)", "note": "Respuesta automática — no requiere atención."}, {"name": "Contacto 5", "phone": "•••-•••-0971", "url": "#", "date": "2026-07-30 12:05", "cat": "util", "conf": true, "reply": "“¡Saludos! ¿Qué garantía tiene?”", "note": "Pregunta por la garantía del remate — lead."}, {"name": "Contacto 6", "phone": "•••-•••-7895", "url": "#", "date": "2026-07-30 12:05", "cat": "auto", "conf": true, "reply": "(respuesta automática de una cuenta de negocio)", "note": "Respuesta automática — no requiere atención."}, {"name": "Contacto 7", "phone": "•••-•••-1824", "url": "#", "date": "2026-07-30 12:06", "cat": "util", "conf": true, "reply": "“Vengan a repararlo, ya va para un mes… el aire se dañó. Es el servicio que estoy esperando.”", "note": "Cliente con servicio pendiente hace un mes — atender."}, {"name": "Contacto 8", "phone": "•••-•••-7684", "url": "#", "date": "2026-07-30 12:06", "cat": "util", "conf": true, "reply": "“En vez de enviarme tanta promoción, resuelvan la situación que tengo de mi hija y de mi madre.”", "note": "Queja: situación sin resolver — atender."}, {"name": "Contacto 9", "phone": "•••-•••-3395", "url": "#", "date": "2026-07-30 12:07", "cat": "auto", "conf": true, "reply": "(respuesta automática de una cuenta de negocio)", "note": "Respuesta automática — no requiere atención."}, {"name": "Contacto 10", "phone": "•••-•••-3616", "url": "#", "date": "2026-07-30 12:07", "cat": "auto", "conf": true, "reply": "(respuesta automática de una cuenta de negocio)", "note": "Respuesta automática — no requiere atención."}, {"name": "Contacto 11", "phone": "•••-•••-1115", "url": "#", "date": "2026-07-30 12:07", "cat": "auto", "conf": true, "reply": "(respuesta automática de una cuenta de negocio)", "note": "Respuesta automática — no requiere atención."}, {"name": "Contacto 12", "phone": "•••-•••-9416", "url": "#", "date": "2026-07-30 12:08", "cat": "auto", "conf": true, "reply": "(respuesta automática de una cuenta de negocio)", "note": "Respuesta automática — no requiere atención."}, {"name": "Contacto 13", "phone": "•••-•••-7483", "url": "#", "date": "2026-07-30 10:02", "cat": "util", "conf": true, "reply": "“La brigada vino a instalar y revisar el sistema; quedó de enviarme un video para el uso de mi cisterna semiautomática.”", "note": "Cliente espera un video/seguimiento post-instalación — atender."}]}], "campaign": "Remate Tesla"};</script>
+<script>
+const fmt=n=>n.toLocaleString('es-PR');
+const N=DB.notifs;
+const rate=d=>d.fresh/d.delivered*100;
+const LABELS={todas:'Todas',util:'✅ Útil',auto:'🤖 Automática',no:'❌ No',revisar:'⏳ Por revisar'};
+
+const tabsEl=document.getElementById('tabs');
+let th='<button class="tab active" data-v="metricas">📊 Métricas</button>';
+N.forEach(n=>{th+=`<button class="tab" data-v="${n.id}">${n.oferta}<span class="b">${n.fresh}</span></button>`;});
+tabsEl.innerHTML=th;
+
+const tot=N.reduce((a,d)=>({sent:a.sent+d.sent,delivered:a.delivered+d.delivered,read:a.read+d.read,fresh:a.fresh+d.fresh}),{sent:0,delivered:0,read:0,fresh:0});
+const kpis=[{label:"Enviadas",val:fmt(tot.sent)},{label:"Entregadas",val:fmt(tot.delivered),foot:(tot.delivered/tot.sent*100).toFixed(0)+"% de enviadas"},{label:"Leídas",val:fmt(tot.read),foot:(tot.read/tot.delivered*100).toFixed(1)+"% de entregadas"},{label:"Respondieron",val:fmt(tot.fresh),accent:true,foot:"contactos (resumen fresco)"},{label:"Tasa resp.",val:(tot.fresh/tot.delivered*100).toFixed(2)+"%",accent:true}];
+document.getElementById('kpis').innerHTML=kpis.map(k=>`<div class="card kpi"><div class="label">${k.label}</div><div class="val ${k.accent?'accent':''}">${k.val}</div><div class="foot">${k.foot||''}</div></div>`).join('');
+document.querySelector('#tbl tbody').innerHTML=N.map(d=>`<tr><td class="nm">${d.name}<div style="font-size:10.5px;color:var(--muted);font-weight:400">${d.date}</div></td><td style="text-align:left">${d.oferta}</td><td>${fmt(d.sent)}</td><td>${fmt(d.delivered)}</td><td>${fmt(d.read)}</td><td style="font-weight:700;color:var(--blue-dark)">${d.fresh}</td><td><span class="tag">${rate(d).toFixed(2)}%</span></td></tr>`).join('');
+
+document.getElementById('msgsummary').innerHTML=N.map(n=>`<div style="margin-bottom:12px"><div style="font-weight:700;font-size:13px">${n.oferta} <span style="font-weight:400;color:var(--muted);font-size:11.5px">· ${n.name} · ${n.date}</span></div><div class="msg-box" style="margin:6px 0 0">${n.msg}</div></div>`).join('');
+
+let nv='';
+N.forEach(n=>{
+  nv+=`<div class="view" id="v-${n.id}">
+    <div class="kpis">
+      <div class="card kpi"><div class="label">Enviadas</div><div class="val">${fmt(n.sent)}</div></div>
+      <div class="card kpi"><div class="label">Entregadas</div><div class="val">${fmt(n.delivered)}</div><div class="foot">${(n.delivered/n.sent*100).toFixed(0)}% de env.</div></div>
+      <div class="card kpi"><div class="label">Leídas</div><div class="val">${fmt(n.read)}</div></div>
+      <div class="card kpi"><div class="label">Respondieron</div><div class="val accent">${n.fresh}</div><div class="foot">resumen fresco</div></div>
+      <div class="card kpi"><div class="label">Tasa resp.</div><div class="val accent">${rate(n).toFixed(2)}%</div></div>
+    </div>
+    <div class="card" style="margin-bottom:16px">
+      <h2><span class="dot"></span>Mensaje enviado · plantilla ${n.name}</h2>
+      <div class="msg-box">${n.msg}</div>
+      <a class="openbtn" href="https://go.botmaker.com/#/campaigns" target="_blank">Abrir campaña en Botmaker ↗</a>
+    </div>
+    <div class="card">
+      <h2><span class="dot"></span>Respuestas clasificadas (${n.resp.length})</h2>
+      <div class="filters" data-for="${n.id}"></div>
+      <div class="hint">✅ Útil = contestar · 🤖 Automática = bot/negocio · ❌ No = no aplica · ⏳ Por revisar = sin leer.</div>
+      <div class="scroll" id="list-${n.id}"></div>
+    </div>
+  </div>`;
+});
+document.getElementById('notifViews').innerHTML=nv;
+
+function initCl(id){
+  const n=N.find(x=>x.id===id); if(!n) return;
+  const fb=document.querySelector(`.filters[data-for="${id}"]`); if(!fb||fb.dataset.init) return; fb.dataset.init=1;
+  const cnt={todas:n.resp.length};['util','auto','no','revisar'].forEach(c=>cnt[c]=n.resp.filter(x=>x.cat===c).length);
+  const st={c:'todas'};
+  fb.innerHTML=Object.keys(LABELS).map(c=>`<button class="fb ${c==='todas'?'active':''}" data-c="${c}">${LABELS[c]} <span class="ct">${cnt[c]}</span></button>`).join('');
+  const list=document.getElementById('list-'+id);
+  function draw(){const items=n.resp.filter(x=>st.c==='todas'||x.cat===st.c);list.innerHTML=items.map(r=>`<div class="item ${r.cat}"><div class="row1"><span class="r-nm">${r.name}</span><span class="r-ph">${r.phone}</span><span class="badge ${r.cat}">${LABELS[r.cat].replace(/^.\s/,'')}</span><span class="conf">${r.conf?'· confirmado':''}</span></div>${r.reply?`<div class="reply">💬 ${r.reply}</div>`:''}${r.note?`<div class="note">${r.note}</div>`:''}<a class="lnk" href="${r.url}" target="_blank">(conversación interna)</a></div>`).join('')||'<div style="padding:20px;text-align:center;color:var(--muted)">Sin elementos.</div>';}
+  fb.querySelectorAll('.fb').forEach(b=>b.onclick=()=>{st.c=b.dataset.c;fb.querySelectorAll('.fb').forEach(x=>x.classList.toggle('active',x===b));draw();});
+  draw();
+}
+
+let charted=false;
+tabsEl.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
+  const v=t.dataset.v;
+  tabsEl.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===t));
+  document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
+  document.getElementById('v-'+v).classList.add('active');
+  if(v!=='metricas') initCl(v);
+  if(v==='metricas'&&!charted){drawCharts();charted=true;}
+});
+function drawCharts(){
+  new Chart(document.getElementById('funnel'),{type:'bar',data:{labels:['Enviadas','Entregadas','Leídas','Respondieron'],datasets:[{data:[tot.sent,tot.delivered,tot.read,tot.fresh],backgroundColor:['#f9a8c0','#f2678f','#e11d48','#9f1239'],borderRadius:8}]},options:{indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{ticks:{callback:v=>v.toLocaleString('es-PR')}}}}});
+  const R=N[0].resp;const cc={util:R.filter(x=>x.cat==='util').length,auto:R.filter(x=>x.cat==='auto').length,no:R.filter(x=>x.cat==='no').length,revisar:R.filter(x=>x.cat==='revisar').length};
+  new Chart(document.getElementById('rate'),{type:'doughnut',data:{labels:['Útil','Automática','No','Por revisar'],datasets:[{data:[cc.util,cc.auto,cc.no,cc.revisar],backgroundColor:['#16a34a','#94a3b8','#dc2626','#f59e0b']}]},options:{plugins:{legend:{position:'bottom'}}}});
+}
+drawCharts();charted=true;
+</script>
+</body>
+</html>
